@@ -3,10 +3,11 @@ import { getClipperById, getVideosByClipperId } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clipperId = params.id;
+    const { id } = await params;
+    const clipperId = id;
     
     const clipper = await getClipperById(clipperId);
     if (!clipper) {

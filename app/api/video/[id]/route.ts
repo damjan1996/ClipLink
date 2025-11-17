@@ -3,10 +3,11 @@ import { getVideoById } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const videoId = params.id;
+    const { id } = await params;
+    const videoId = id;
     
     const video = await getVideoById(videoId);
     if (!video) {
