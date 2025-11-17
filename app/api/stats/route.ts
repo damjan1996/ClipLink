@@ -14,8 +14,8 @@ export async function GET() {
       prisma.clipper.count(),
       prisma.video.count(),
       prisma.manualReview.count({ where: { reviewed: false } }),
-      prisma.video.count({ where: { validationStatus: 'approved' } }),
-      prisma.video.count({ where: { validationStatus: 'rejected' } }),
+      prisma.video.count({ where: { status: 'approved' } }),
+      prisma.video.count({ where: { status: 'rejected' } }),
       prisma.strike.count(),
     ]);
     
