@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       prisma.video.groupBy({
         by: ['platform'],
         _count: { _all: true },
-        where: { platform: { not: null } },
+        where: { platform: { not: undefined } },
       }),
 
       // Status distribution
