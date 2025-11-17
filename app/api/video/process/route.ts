@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       await addToReviewQueue(
         data.videoId,
         duplicateCheck.confidence,
-        duplicateCheck.duplicateOf
+        duplicateCheck.duplicateOf || undefined
       );
     }
     
