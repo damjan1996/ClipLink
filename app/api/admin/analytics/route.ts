@@ -23,9 +23,9 @@ export async function GET(request: NextRequest) {
         prisma.clipper.count(),
         prisma.clipper.count({ where: { isActive: true } }),
         prisma.video.count(),
-        prisma.video.count({ where: { validationStatus: 'approved' } }),
-        prisma.video.count({ where: { validationStatus: 'rejected' } }),
-        prisma.video.count({ where: { validationStatus: 'manual_review' } }),
+        prisma.video.count({ where: { status: 'approved' } }),
+        prisma.video.count({ where: { status: 'rejected' } }),
+        prisma.video.count({ where: { status: 'pending' } }),
         prisma.strike.count(),
         prisma.manualReview.count({ where: { reviewed: false } }),
       ]),
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       // Recent period statistics
       prisma.$transaction([
         prisma.clipper.count({ where: { createdAt: { gte: startDate } } }),
-        prisma.video.count({ where: { uploadDate: { gte: startDate } } }),
+        prisma.video.count({ where: { submissionDate: { gte: startDate } } }),
         prisma.strike.count({ where: { issuedDate: { gte: startDate } } }),
       ]),
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
       // Status distribution
       prisma.video.groupBy({
-        by: ['validationStatus'],
+        by: ['status'],
         _count: { _all: true },
       }),
 
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
             select: { name: true, email: true },
           },
           video: {
-            select: { filename: true },
+            select: { videoLink: true },
           },
         },
       }),
@@ -97,12 +97,12 @@ export async function GET(request: NextRequest) {
 
       // Daily uploads for chart  
       prisma.video.groupBy({
-        by: ['uploadDate', 'validationStatus'],
+        by: ['submissionDate', 'status'],
         _count: { _all: true },
         where: { 
-          uploadDate: { gte: startDate } 
+          submissionDate: { gte: startDate } 
         },
-        orderBy: { uploadDate: 'desc' },
+        orderBy: { submissionDate: 'desc' },
       }),
     ]);
 
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
           count: p._count._all,
         })),
         statuses: statusStats.map(s => ({
-          status: s.validationStatus,
+          status: s.status,
           count: s._count._all,
         })),
       },
@@ -147,13 +147,13 @@ export async function GET(request: NextRequest) {
       recentActivity: recentActivity.map(activity => ({
         ...activity,
         clipperName: activity.clipper?.name,
-        videoName: activity.video?.filename,
+        videoLink: activity.video?.videoLink,
       })),
       charts: {
         dailyUploads: dailyUploads.map(item => ({
-          date: item.uploadDate.toISOString().split('T')[0],
+          date: item.submissionDate.toISOString().split('T')[0],
           count: item._count._all,
-          status: item.validationStatus,
+          status: item.status,
         })),
       },
     };
