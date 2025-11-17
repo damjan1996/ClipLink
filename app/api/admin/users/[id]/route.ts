@@ -3,10 +3,11 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clipperId = params.id;
+    const { id } = await params;
+    const clipperId = id;
     
     const clipper = await prisma.clipper.findUnique({
       where: { id: clipperId },
@@ -70,10 +71,11 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clipperId = params.id;
+    const { id } = await params;
+    const clipperId = id;
     const body = await request.json();
     
     const updatedClipper = await prisma.clipper.update({
