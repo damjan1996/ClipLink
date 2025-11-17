@@ -1,0 +1,24 @@
+Anpassung der Software:
+
+"Ich würde auch auf Basis unseres Gesprächs die Abrechnung pro Clip doch nicht mehr machen. Es wird viel sinnvoller sein hier einfach eine zentrale Datenbank zu schaffen; und somit die Clipper nur noch pro View zu Vergütung und die Vergütung pro Clip lassen wir komplett weg."
+
+Bedeutet:
+
+Das Vergütungsmodell fällt weg.
+Es bleibt ein Bonusmodell.
+
+Das würde so laufen:
+10.000 Views = 10€ Auszahlung
+Link von Social Media zum Video kopieren.
+Das Video erfüllt die Kriterien und hält sich an die Richtlinien und hat eine Anzahl an Views über 10.000 erreicht.
+Das Video würde gespeichert und überprüft werden, ob es in Ordnung ist.
+Sollte alles in Ordnung sein: Das Video würde dann für den jeweiligen Editor berücksichtigt werden, um am Monatsende abzurechnen.
+
+Der manuelle Upload fällt weg.
+
+Jetzt:
+- Video per Link eintragen.
+- Link wird gespeichert und die Views des Videos werden abgerufen.
+
+Die Videos werden in Supabase als Link und mit ihren Views, Uploaddatum und Plattform beispielsweise gespeichert.
+Dazu auch mit weiteren relevanten Metadaten.

@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id          String    @id @default(cuid())
+  username    String    @unique
+  email       String    @unique
+  password    String    // In production: use proper hashing
+  role        String    @default("admin") // admin, super_admin
+  createdAt   DateTime  @default(now())
+  lastLogin   DateTime?
+  isActive    Boolean   @default(true)
+  
+  reviewedVideos ManualReview[]
+  
+  @@map("admins")
+}
+
+model Clipper {
+  id                  String    @id @default(cuid())
+  name                String
+  email               String    @unique
+  username            String?   @unique
+  password            String?   // Optional for clipper login
+  registeredChannels  Json?     // Array of social media channels
+  strikes             Int       @default(0)
+  paymentBlocked      Boolean   @default(false)
+  isActive            Boolean   @default(true)
+  totalEarnings       Float     @default(0.0)
+  totalViews          Int       @default(0)
+  createdAt           DateTime  @default(now())
+  lastActivity        DateTime?
+  
+  videos              Video[]
+  strikes_issued      Strike[]
+  activities          Activity[]
+  paymentRecords      PaymentRecord[]
+  
+  @@map("clipper")
+}
+
+model Video {
+  id                  String    @id @default(cuid())
+  clipperId           String
+  videoLink           String    // Social media link (YouTube, TikTok, Instagram, X, LinkedIn)
+  platform            String    // Automatically detected platform
+  title               String?   // Video title from platform
+  description         String?   // Video description from platform
+  thumbnailUrl        String?   // Thumbnail URL from platform
+  duration            Int?      // Video duration in seconds
+  uploadDate          DateTime? // Original upload date on platform
+  submissionDate      DateTime  @default(now())
+  viewCount           Int       @default(0)
+  lastViewCheck       DateTime?
+  status              String    @default("pending") // pending, approved, rejected
+  bonusEligible       Boolean   @default(false)
+  paidOut             Boolean   @default(false)
+  bonusAmount         Float?    // Calculated bonus amount
+  notes               String?   // Admin notes
+  isDeleted           Boolean   @default(false)
+  metadata            Json?     // Additional platform-specific metadata
+  
+  clipper             Clipper   @relation(fields: [clipperId], references: [id])
+  strikes             Strike[]
+  manualReviews       ManualReview[]
+  activities          Activity[]
+  
+  @@map("videos")
+}
+
+model Strike {
+  id          String    @id @default(cuid())
+  clipperId   String
+  videoId     String
+  reason      String
+  type        String    @default("duplicate") // duplicate, policy_violation, fake_content
+  severity    String    @default("medium")   // low, medium, high
+  issuedDate  DateTime  @default(now())
+  resolved    Boolean   @default(false)
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  notes       String?
+  
+  clipper     Clipper   @relation(fields: [clipperId], references: [id])
+  video       Video     @relation(fields: [videoId], references: [id])
+  
+  @@map("strikes")
+}
+
+model ManualReview {
+  id                  String    @id @default(cuid())
+  videoId             String
+  reason              String?   // Why it needs review
+  priority            String    @default("medium") // low, medium, high
+  addedToQueue        DateTime  @default(now())
+  reviewed            Boolean   @default(false)
+  reviewedBy          String?
+  adminId             String?
+  reviewDecision      String?   // approve, reject
+  reviewedAt          DateTime?
+  reviewNotes         String?
+  
+  video               Video     @relation(fields: [videoId], references: [id])
+  admin               Admin?    @relation(fields: [adminId], references: [id])
+  
+  @@map("manual_review_queue")
+}
+
+model Activity {
+  id          String    @id @default(cuid())
+  clipperId   String?
+  videoId     String?
+  adminId     String?
+  type        String    // upload, review, strike, payment, login, etc.
+  action      String    // specific action taken
+  description String?
+  metadata    Json?     // Additional context
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime  @default(now())
+  
+  clipper     Clipper?  @relation(fields: [clipperId], references: [id])
+  video       Video?    @relation(fields: [videoId], references: [id])
+  
+  @@map("activities")
+}
+
+model Settings {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  value       String
+  type        String    @default("string") // string, number, boolean, json
+  description String?
+  updatedAt   DateTime  @default(now())
+  
+  @@map("settings")
+}
+
+model PaymentRecord {
+  id              String    @id @default(cuid())
+  clipperId       String
+  videoId         String?
+  amount          Float
+  type            String    // base_payment, bonus, penalty
+  status          String    @default("pending") // pending, processed, failed
+  description     String?
+  metadata        Json?
+  processedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  
+  clipper         Clipper   @relation(fields: [clipperId], references: [id])
+  
+  @@map("payment_records")
+}
