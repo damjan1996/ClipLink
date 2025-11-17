@@ -78,8 +78,8 @@ export async function addToReviewQueue(
   return await prisma.manualReview.create({
     data: {
       videoId,
-      confidenceScore,
-      possibleDuplicateOf,
+      reason: `Manual review required. Confidence: ${confidenceScore}${possibleDuplicateOf ? `, possible duplicate of: ${possibleDuplicateOf}` : ''}`,
+      priority: confidenceScore < 0.5 ? 'high' : confidenceScore < 0.8 ? 'medium' : 'low',
     },
   });
 }
