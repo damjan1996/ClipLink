@@ -3,12 +3,17 @@ import { prisma, updateVideo, issueStrike, addToReviewQueue } from '@/lib/db';
 import { z } from 'zod';
 
 // Mock duplicate checker function since the module doesn't exist
-async function checkForDuplicates(videoId: string, clipperId: string) {
+type DecisionType = 'auto_approve' | 'auto_reject' | 'manual_review';
+
+async function checkForDuplicates(videoId: string, clipperId: string): Promise<{
+  decision: DecisionType;
+  confidence: number;
+  duplicateOf: string | null;
+}> {
   // This is a placeholder implementation
   // In a real system, you would implement actual duplicate detection logic
-  const decisions = ['auto_approve', 'auto_reject', 'manual_review'] as const;
   return {
-    decision: decisions[0], // Always approve for now
+    decision: 'auto_approve' as DecisionType, // Always approve for now
     confidence: 0.95,
     duplicateOf: null,
   };
