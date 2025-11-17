@@ -23,13 +23,13 @@ export async function POST(request: NextRequest) {
     // Create video record (without actual upload)
     const video = await createVideo({
       clipperId,
-      filename: file.name,
+      videoLink: uploadLink || file.name,
       uploadLink,
       platform,
       videoType: videoType || 'normal',
       blobUrl: `/uploads/${file.name}`, // Local path
       fileSize: file.size,
-      validationStatus: 'pending',
+      status: 'pending',
     });
     
     return NextResponse.json({

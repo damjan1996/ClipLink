@@ -26,7 +26,7 @@ export async function getVideoById(id: string) {
 export async function getVideosByClipperId(clipperId: string) {
   return await prisma.video.findMany({
     where: { clipperId },
-    orderBy: { uploadDate: 'desc' },
+    orderBy: { submissionDate: 'desc' },
   });
 }
 

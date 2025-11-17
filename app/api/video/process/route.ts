@@ -6,8 +6,9 @@ import { z } from 'zod';
 async function checkForDuplicates(videoId: string, clipperId: string) {
   // This is a placeholder implementation
   // In a real system, you would implement actual duplicate detection logic
+  const decisions = ['auto_approve', 'auto_reject', 'manual_review'] as const;
   return {
-    decision: 'auto_approve' as const,
+    decision: decisions[0], // Always approve for now
     confidence: 0.95,
     duplicateOf: null,
   };
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
                  'manual_review';
     
     await updateVideo(data.videoId, {
-      validationStatus: status,
+      status: status,
       confidenceScore: duplicateCheck.confidence,
       duplicateOf: duplicateCheck.duplicateOf,
     });
