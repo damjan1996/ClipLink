@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     
     // Calculate base payment for approved videos
     if (status === 'approved') {
-      const basePayment = video.videoType === 'normal' ? 0.60 : 0.30;
+      const basePayment = 0.60; // Standard payment for all videos
       await updateVideo(data.videoId, { basePayment });
     }
     
