@@ -13,14 +13,14 @@ export async function GET(
       where: { id: clipperId },
       include: {
         videos: {
-          orderBy: { uploadDate: 'desc' },
+          orderBy: { submissionDate: 'desc' },
           take: 50,
         },
         strikes_issued: {
           orderBy: { issuedDate: 'desc' },
           include: {
             video: {
-              select: { filename: true, uploadDate: true },
+              select: { videoLink: true, submissionDate: true },
             },
           },
         },
@@ -45,10 +45,9 @@ export async function GET(
     // Calculate statistics
     const stats = {
       totalVideos: clipper.videos.length,
-      approvedVideos: clipper.videos.filter(v => v.validationStatus === 'approved').length,
-      rejectedVideos: clipper.videos.filter(v => v.validationStatus === 'rejected').length,
-      pendingVideos: clipper.videos.filter(v => v.validationStatus === 'pending').length,
-      manualReviewVideos: clipper.videos.filter(v => v.validationStatus === 'manual_review').length,
+      approvedVideos: clipper.videos.filter(v => v.status === 'approved').length,
+      rejectedVideos: clipper.videos.filter(v => v.status === 'rejected').length,
+      pendingVideos: clipper.videos.filter(v => v.status === 'pending').length,
       totalEarnings: clipper.paymentRecords.reduce((sum, p) => sum + p.amount, 0),
       averageViews: clipper.videos.length > 0 
         ? clipper.videos.reduce((sum, v) => sum + v.viewCount, 0) / clipper.videos.length 
