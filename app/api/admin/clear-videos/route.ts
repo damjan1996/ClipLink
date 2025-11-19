@@ -21,7 +21,7 @@ export async function POST() {
       });
     }
     
-    const videoIds = videos.map(v => v.id);
+    const videoIds = videos.map((v: { id: string }) => v.id);
     
     // Clear related data first
     await supabase
