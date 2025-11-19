@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const SUPPORTED_PLATFORMS = {
   youtube: {
-    regex: /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
+    regex: /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/,
     name: 'YouTube',
     color: 'hover:border-red-500/50'
   },
@@ -72,11 +72,14 @@ export default function VideoLinkSubmissionForm() {
       setSubmitting(true);
       setResult(null);
 
+      // Temporary: Use test clipper ID if not provided
+      const clipperId = formData.editorId || 'aaf2f6be-c44c-4857-b6db-a2b1bb02718c';
+      
       const response = await fetch('/api/video/submit-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          clipperId: formData.editorId,
+          clipperId,
           videoLink: formData.videoLink,
           platform,
         }),
@@ -85,7 +88,12 @@ export default function VideoLinkSubmissionForm() {
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error(data.error || 'Übertragung fehlgeschlagen');
+        // Handle validation errors (like duplicates) as normal results, not exceptions
+        setResult({
+          status: 'error',
+          message: data.error || 'Übertragung fehlgeschlagen'
+        });
+        return;
       }
 
       setResult({

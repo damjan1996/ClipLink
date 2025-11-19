@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase-auth';
-import { SupabaseDB } from '@/lib/supabase-client';
+import { createSupabaseServiceClient } from '@/lib/supabase-auth';
 
 export async function POST(req: NextRequest) {
   try {
-    // TEMPORARY: Skip auth for testing
     const body = await req.json();
     const { clipperId, videoLink, platform } = body;
 
@@ -15,12 +13,8 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Use service client to bypass RLS
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // Use service client to bypass RLS for testing
+    const supabase = createSupabaseServiceClient();
 
     // Check if clipper exists
     const { data: clipper, error: clipperError } = await supabase
@@ -78,8 +72,6 @@ export async function POST(req: NextRequest) {
         clipperId,
         videoLink,
         platform,
-        status: 'pending',
-        submissionDate: new Date().toISOString()
       }])
       .select()
       .single();
